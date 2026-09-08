@@ -190,6 +190,8 @@ app.use(BASE_PATH, (req, res, next) => {
         '/login',
         '/pin-length',
         '/verify-pin',
+        '/track',
+        '/track/',
         '/config.js',
         '/assets/',
         '/styles.css',
@@ -270,6 +272,7 @@ app.get(BASE_PATH + '/config.js', async (req, res) => {
             defaultSettings: ${JSON.stringify(DEFAULT_SETTINGS)},
             demoMode: ${DEMO_MODE},
             currency: ${currency},
+            mapboxToken: '${process.env.MAPBOX_TOKEN || ''}',
         };
     `);
     
@@ -343,6 +346,11 @@ app.get(BASE_PATH + '/login', (req, res) => {
     }
     
     res.sendFile(path.join(PUBLIC_DIR, 'login.html'));
+});
+
+// Public tracking page for customers: /track/:id
+app.get(BASE_PATH + '/track/:id', (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'tracking.html'));
 });
 
 app.get(BASE_PATH + '/pin-length', (req, res) => {
