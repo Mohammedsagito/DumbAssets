@@ -33,6 +33,11 @@
 .card .title{font-weight:700;color:#0b3142}
 .card .sub{font-size:12px;color:#666}
 .card .id{font-family:monospace;background:#f1f4f6;padding:4px 8px;border-radius:4px;font-size:12px}
+
+/* Quick track box in header */
+.quick-track{display:inline-flex;gap:8px;align-items:center;margin-left:12px}
+.quick-track input{padding:6px 8px;border-radius:6px;border:1px solid #dce6ea}
+.quick-track .btn{padding:6px 10px}
 .controls{margin-top:10px;display:flex;gap:8px}
 .btn{background:#0b3142;color:#fff;padding:6px 10px;border-radius:4px;text-decoration:none;border:none;cursor:pointer}
 @media(max-width:800px){

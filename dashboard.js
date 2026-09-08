@@ -159,6 +159,38 @@
   simManyBtn.addEventListener('click', ()=> simulateMany(8));
   document.querySelector('.controls').appendChild(simManyBtn);
 
+  // Quick track search (header)
+  const trackQueryEl = document.getElementById('track-query');
+  const trackGoBtn = document.getElementById('track-go');
+  let searchMarker = null;
+  trackGoBtn.addEventListener('click', async ()=>{
+    const q = (trackQueryEl.value||'').trim();
+    if (!q) return alert('Enter a tracking number');
+    try{
+      const assetsResp = await fetch('/api/assets');
+      const assets = await assetsResp.json();
+      const found = assets.find(a => (a.trackingNumber && a.trackingNumber.toString() === q) || (a.id && a.id.toString() === q));
+      if (!found) return alert('Tracking number not found');
+      const t = await fetch(`/api/track/${encodeURIComponent(found.id)}`);
+      if (!t.ok) return alert('No tracking data yet for this shipment');
+      const pos = await t.json();
+      if (!pos) return alert('No tracking data');
+      if (!map) initMap();
+      if (searchMarker) try{ searchMarker.remove(); }catch(e){}
+      searchMarker = new maplibregl.Marker({ color: '#00aaff' }).setLngLat([pos.lng, pos.lat]).addTo(map);
+      map.flyTo({ center: [pos.lng, pos.lat], zoom: 12 });
+      // show details in detail panel
+      selected = found; detailTitle.textContent = found.name || 'Shipment';
+      detailBody.innerHTML = `
+        <p><strong>ID:</strong> ${found.id||''}</p>
+        <p><strong>Tracking:</strong> ${found.trackingNumber||''}</p>
+        <p><strong>Lat:</strong> ${pos.lat}</p>
+        <p><strong>Lng:</strong> ${pos.lng}</p>
+        <p><strong>Speed:</strong> ${pos.speed||'—'}</p>
+      `;
+    }catch(err){ console.error(err); alert('Error searching tracking'); }
+  });
+
   // socket realtime handling
   if (socket) {
     socket.on('position', (pos)=>{
