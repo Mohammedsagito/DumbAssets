@@ -34,6 +34,15 @@
 .card .sub{font-size:12px;color:#666}
 .card .id{font-family:monospace;background:#f1f4f6;padding:4px 8px;border-radius:4px;font-size:12px}
 
+.filters{display:flex;gap:8px;margin-top:8px;align-items:center}
+.filters select,.filters input{padding:6px;border-radius:6px;border:1px solid #dce6ea}
+.table-view{width:100%;border-collapse:collapse;margin-top:8px}
+.table-view th,.table-view td{border:1px solid #e6edf0;padding:8px;text-align:left}
+
+/* Toast */
+.toast{position:fixed;right:16px;bottom:16px;background:#111;color:#fff;padding:10px 14px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.2);display:none}
+.toast.show{display:block}
+
 /* Quick track box in header */
 .quick-track{display:inline-flex;gap:8px;align-items:center;margin-left:12px}
 .quick-track input{padding:6px 8px;border-radius:6px;border:1px solid #dce6ea}

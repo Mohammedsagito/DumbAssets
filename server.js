@@ -489,10 +489,19 @@ app.post('/api/share/:id', (req,res)=>{
         if (!id) return res.status(400).json({ error: 'Missing id' });
         const tokens = readShareTokens();
         const token = generateShareToken();
-        tokens[token] = { id, createdAt: new Date().toISOString() };
+        // optional expiry in minutes passed via body.expiryMinutes or query param
+        let expiresAt = null;
+        const expiryMinutes = (req.body && req.body.expiryMinutes) || req.query.expiryMinutes || (req.body && req.body.expiry);
+        if (expiryMinutes) {
+            const mins = parseInt(expiryMinutes);
+            if (!isNaN(mins) && mins > 0) {
+                expiresAt = new Date(Date.now() + mins * 60 * 1000).toISOString();
+            }
+        }
+        tokens[token] = { id, createdAt: new Date().toISOString(), expiresAt };
         writeShareTokens(tokens);
         const url = `${getBaseUrl(req)}/share/${token}`;
-        res.json({ ok:true, url, token });
+        res.json({ ok:true, url, token, expiresAt });
     }catch(e){ console.error(e); res.status(500).json({ ok:false, error: e.message }); }
 });
 
@@ -502,10 +511,20 @@ app.get('/share/:token', (req,res)=>{
         const token = req.params.token;
         const tokens = readShareTokens();
         if (!tokens[token]) return res.status(404).send('Share link not found');
-        const id = tokens[token].id;
-        // Redirect to public tracking page
+        const entry = tokens[token];
+        if (entry.expiresAt && new Date(entry.expiresAt) < new Date()){
+            // expired - delete and inform
+            delete tokens[token]; writeShareTokens(tokens);
+            return res.status(410).send('Share link expired');
+        }
+        const id = entry.id;
         return res.redirect(BASE_PATH + `/track/${encodeURIComponent(id)}`);
     }catch(e){ console.error(e); res.status(500).send('Error'); }
+});
+
+// Admin: list share tokens
+app.get('/api/shares', (req,res)=>{
+    try{ const tokens = readShareTokens(); res.json(tokens); }catch(e){ res.status(500).json({}); }
 });
 
 // Revoke a share token (DELETE)

@@ -43,6 +43,17 @@
     <aside class="shipments-panel">
       <h2>Shipments</h2>
       <input id="search" placeholder="Search shipments" />
+        <div class="filters">
+          <select id="filter-status" aria-label="Status filter">
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <input id="filter-min-speed" placeholder="Min speed" type="number" />
+          <input id="filter-max-speed" placeholder="Max speed" type="number" />
+          <button id="export-csv" class="btn">Export CSV</button>
+          <button id="toggle-table" class="btn">Table View</button>
+        </div>
       <ul id="shipments-list" class="list"></ul>
     </aside>
 
@@ -74,6 +85,8 @@
           <button id="share-revoke" class="btn">Revoke</button>
           <button id="share-close" class="btn">Close</button>
         </div>
+
+        <div id="toast" class="toast" aria-live="polite"></div>
       </div>
     </div>
 

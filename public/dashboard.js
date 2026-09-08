@@ -32,11 +32,91 @@
       const meta = document.createElement('div'); meta.className='meta';
       const title = document.createElement('div'); title.className='title'; title.textContent = it.name || 'Unnamed';
       const sub = document.createElement('div'); sub.className='sub'; sub.textContent = it.modelNumber ? `${it.modelNumber}` : '';
+      const carrier = document.createElement('div'); carrier.className='sub'; carrier.textContent = it.carrier?('Carrier: '+it.carrier):'';
+      const eta = document.createElement('div'); eta.className='sub'; eta.textContent = it.eta?('ETA: '+it.eta):'';
       meta.appendChild(title); meta.appendChild(sub);
+      meta.appendChild(carrier); meta.appendChild(eta);
       const idEl = document.createElement('div'); idEl.className='id'; idEl.textContent = it.trackingNumber || it.id || '';
       card.appendChild(meta); card.appendChild(idEl);
       card.addEventListener('click', ()=>selectShipment(it));
       cardsContainer.appendChild(card);
+    });
+  }
+
+  // filters
+  const statusFilter = document.getElementById('filter-status');
+  const minSpeedEl = document.getElementById('filter-min-speed');
+  const maxSpeedEl = document.getElementById('filter-max-speed');
+  statusFilter.addEventListener('change', ()=> renderList(searchEl.value));
+  minSpeedEl.addEventListener('input', ()=> renderList(searchEl.value));
+  maxSpeedEl.addEventListener('input', ()=> renderList(searchEl.value));
+
+  // table toggle
+  const toggleTableBtn = document.getElementById('toggle-table');
+  let tableMode = false;
+  toggleTableBtn.addEventListener('click', ()=>{ tableMode = !tableMode; if (tableMode) showTableView(); else { document.querySelector('.shipments-panel').querySelector('.cards-grid').style.display='grid'; const t=document.querySelector('.table-view'); if (t) t.remove(); } });
+
+  function showTableView(){
+    const tbl = document.createElement('table'); tbl.className='table-view';
+    const thead = document.createElement('thead'); thead.innerHTML='<tr><th>ID</th><th>Name</th><th>Tracking</th><th>Speed</th><th>Updated</th></tr>';
+    tbl.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    shipments.forEach(s=>{
+      const tr = document.createElement('tr');
+      const t = (s._tracking||{});
+      tr.innerHTML = `<td>${s.id||''}</td><td>${s.name||''}</td><td>${s.trackingNumber||''}</td><td>${t.speed||''}</td><td>${t.updatedAt||''}</td>`;
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    document.querySelector('.shipments-panel').querySelector('.cards-grid').style.display='none';
+    document.querySelector('.shipments-panel').appendChild(tbl);
+  }
+
+  // export CSV
+  const exportBtn = document.getElementById('export-csv');
+  exportBtn.addEventListener('click', ()=>{
+    const rows = [['id','name','tracking','lat','lng','speed','updatedAt']];
+    shipments.forEach(s=>{ const t=s._tracking||{}; rows.push([s.id||'',s.name||'',s.trackingNumber||'',t.lat||'',t.lng||'',t.speed||'',t.updatedAt||'']); });
+    const csv = rows.map(r=>r.map(c=>`"${(c||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'shipments.csv'; a.click(); URL.revokeObjectURL(url);
+  });
+
+  // Reverse geocode helper (Nominatim)
+  async function reverseGeocode(lat,lng){
+    try{ const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`); if (!r.ok) return null; const j = await r.json(); return j.display_name || null; }catch(e){return null}
+  }
+
+  // compute ETA if destination exists
+  function computeETA(pos, dest, speedKmh){
+    if (!pos || !dest || !speedKmh || speedKmh<=0) return null;
+    // haversine distance in km
+    function haversine(a,b){ const R=6371; const toRad=v=>v*Math.PI/180; const dlat=toRad(b.lat-a.lat); const dlng=toRad(b.lng-a.lng); const la=toRad(a.lat); const lb=toRad(b.lat); const h=Math.sin(dlat/2)**2 + Math.cos(la)*Math.cos(lb)*Math.sin(dlng/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
+    const km = haversine({lat:pos.lat,lng:pos.lng},{lat:dest.lat,lng:dest.lng});
+    const hours = km / speedKmh; if (!isFinite(hours)) return null; const eta = new Date(Date.now() + hours*3600*1000); return eta.toLocaleString();
+  }
+
+  // add clustering source and heat layer
+  function updateClusterSource(tracking){
+    try{
+      const features = Object.keys(tracking||{}).map(id=>{ const t=tracking[id]; return { type:'Feature', properties:{ id, speed: t.speed||0, updatedAt: t.updatedAt||'' }, geometry:{ type:'Point', coordinates:[t.lng, t.lat] } }; });
+      const geo = { type:'FeatureCollection', features };
+      if (map && map.getSource){ if (map.getSource('shipments')){ map.getSource('shipments').setData(geo); } else { map.addSource('shipments',{ type:'geojson', data:geo, cluster:true, clusterMaxZoom: 14, clusterRadius: 50 }); map.addLayer({ id:'clusters', type:'circle', source:'shipments', filter:['has','point_count'], paint:{ 'circle-color':'#FF8C00','circle-radius': ['get','point_count'] } }); map.addLayer({ id:'cluster-count', type:'symbol', source:'shipments', filter:['has','point_count'], layout:{ 'text-field':'{point_count}', 'text-size':12 } }); map.addLayer({ id:'unclustered-point', type:'circle', source:'shipments', filter:['!',['has','point_count']], paint: { 'circle-color':'#00aaff', 'circle-radius':6 } }); }
+    }catch(e){ console.error('cluster update err',e); }
+  }
+
+  // toast alerts
+  const toastEl = document.getElementById('toast');
+  function showToast(msg, time=5000){ toastEl.textContent = msg; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'), time); }
+
+  // realtime socket alerts
+  if (socket){
+    socket.on('position', pos=>{
+      if (!pos) return;
+      // alert if speed < 5 km/h
+      if (pos.speed !== undefined && Number(pos.speed) < 5) showToast(`Slow shipment ${pos.id}: ${pos.speed} km/h`);
+      // update cluster source
+      fetch('/api/tracking').then(r=>r.json()).then(data=> updateClusterSource(data)).catch(()=>{});
     });
   }
 
