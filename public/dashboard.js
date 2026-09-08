@@ -86,6 +86,42 @@
     navigator.clipboard.writeText(url).then(()=>alert('Link copied to clipboard'));
   });
 
+  // create share link via server
+  const createShareBtn = document.getElementById('create-share');
+  createShareBtn.addEventListener('click', async ()=>{
+    if (!selected) return alert('Select a shipment first');
+    try{
+      const res = await fetch(`/api/share/${encodeURIComponent(selected.id)}`, { method: 'POST' });
+      const data = await res.json();
+      if (data && data.url){ navigator.clipboard.writeText(data.url); alert('Share link created and copied'); }
+      else alert('Failed to create share link');
+    }catch(e){ alert('Error creating share link'); }
+  });
+
+  // simulate many shipments
+  const simulateMany = async (count=5)=>{
+    const ids = [];
+    for (let i=0;i<count;i++){ ids.push('sim-'+Math.random().toString(36).slice(2,9)); }
+    const routes = ids.map(id=>({ id, idx:0, route: (function(){ const c=[-0.1278,51.5074]; const r=[]; for(let j=0;j<36;j++){ const ang=j*(Math.PI/18); r.push([c[0]+Math.cos(ang)*(0.02+Math.random()*0.05), c[1]+Math.sin(ang)*(0.02+Math.random()*0.05)]); } return r; })() }));
+    const interval = setInterval(()=>{
+      routes.forEach(r=>{
+        const p = r.route[r.idx % r.route.length];
+        const payload = { id: r.id, lat: p[1], lng: p[0], speed: Math.floor(Math.random()*80) };
+        fetch(`/api/track/${encodeURIComponent(r.id)}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
+        if (socket) socket.emit('position', payload);
+        r.idx++;
+      });
+    }, 2000);
+    // stop after 60s
+    setTimeout(()=>clearInterval(interval), 60000);
+    alert('Simulating '+count+' shipments for 60s');
+  };
+
+  // add simulate many UI button
+  const simManyBtn = document.createElement('button'); simManyBtn.className='btn'; simManyBtn.textContent='Simulate Many';
+  simManyBtn.addEventListener('click', ()=> simulateMany(8));
+  document.querySelector('.controls').appendChild(simManyBtn);
+
   // socket realtime handling
   if (socket) {
     socket.on('position', (pos)=>{

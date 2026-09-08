@@ -1,5 +1,10 @@
 name: Deploy Public to GitHub Pages
 
+# Ensure workflow has write permissions required to publish gh-pages
+permissions:
+  contents: write
+  pages: write
+
 on:
   push:
     branches:

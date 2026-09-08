@@ -138,9 +138,10 @@ app.use(helmet({
   noSniff: true, // Prevent MIME type sniffing
   frameguard: { action: 'deny' }, // Prevent clickjacking
   hsts: { maxAge: 31536000, includeSubDomains: true }, // Enforce HTTPS for one year
-  crossOriginEmbedderPolicy: true,
-  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
-  crossOriginResourcePolicy: { policy: 'same-origin' },
+    // loosen COEP/COOP/CORP to permit loading Mapbox and other third-party resources
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   referrerPolicy: { policy: 'no-referrer-when-downgrade' }, // Set referrer policy
   ieNoOpen: true, // Prevent IE from executing downloads
   // Disabled Helmet middlewares:
@@ -149,7 +150,10 @@ app.use(helmet({
   permittedCrossDomainPolicies: false,
   originAgentCluster: false,
   xssFilter: false,
-}));
+    // Relax cross-origin embedder/resource policies so third-party map scripts load correctly
+    // Mapbox and other CDNs require cross-origin resources; strict COEP/CORP can block them.
+    // Set these to false/less-restrictive to allow external mapbox scripts to load in the browser.
+    }));
 app.use(express.json());
 app.set('trust proxy', 1);
 app.use(cors(getCorsOptions(BASE_URL)));
@@ -194,6 +198,7 @@ app.use(BASE_PATH, (req, res, next) => {
         '/pin-length',
         '/verify-pin',
         '/track',
+        '/share',
         '/track/',
         '/config.js',
         '/assets/',
@@ -465,11 +470,43 @@ app.use('/api', (req, res, next) => {
 
 // --- Tracking persistence helpers ---
 const trackingFilePath = path.join(DATA_DIR, 'Tracking.json');
+const shareTokensFilePath = path.join(DATA_DIR, 'ShareTokens.json');
 function readTrackingData(){
     try{ if(!fs.existsSync(trackingFilePath)) return {}; return JSON.parse(fs.readFileSync(trackingFilePath,'utf8')||'{}'); }catch(e){console.error('readTrackingData err',e); return {}; }
 }
 function writeTrackingData(obj){ try{ ensureDirectoryExists(path.dirname(trackingFilePath)); fs.writeFileSync(trackingFilePath, JSON.stringify(obj,null,2),'utf8'); return true;}catch(e){console.error('writeTrackingData err',e); return false; }
 }
+
+function readShareTokens(){ try{ if(!fs.existsSync(shareTokensFilePath)) return {}; return JSON.parse(fs.readFileSync(shareTokensFilePath,'utf8')||'{}'); }catch(e){console.error('readShareTokens err',e); return {}; } }
+function writeShareTokens(obj){ try{ ensureDirectoryExists(path.dirname(shareTokensFilePath)); fs.writeFileSync(shareTokensFilePath, JSON.stringify(obj,null,2),'utf8'); return true;}catch(e){console.error('writeShareTokens err',e); return false; } }
+
+function generateShareToken(){ return crypto.randomBytes(8).toString('hex'); }
+
+// Create a share token for an asset/tracking id
+app.post('/api/share/:id', (req,res)=>{
+    try{
+        const id = req.params.id;
+        if (!id) return res.status(400).json({ error: 'Missing id' });
+        const tokens = readShareTokens();
+        const token = generateShareToken();
+        tokens[token] = { id, createdAt: new Date().toISOString() };
+        writeShareTokens(tokens);
+        const url = `${getBaseUrl(req)}/share/${token}`;
+        res.json({ ok:true, url, token });
+    }catch(e){ console.error(e); res.status(500).json({ ok:false, error: e.message }); }
+});
+
+// Redirect public share token to track page
+app.get('/share/:token', (req,res)=>{
+    try{
+        const token = req.params.token;
+        const tokens = readShareTokens();
+        if (!tokens[token]) return res.status(404).send('Share link not found');
+        const id = tokens[token].id;
+        // Redirect to public tracking page
+        return res.redirect(BASE_PATH + `/track/${encodeURIComponent(id)}`);
+    }catch(e){ console.error(e); res.status(500).send('Error'); }
+});
 
 // REST endpoint to POST tracking updates (and emit via socket)
 app.post('/api/track/:id', (req,res)=>{
