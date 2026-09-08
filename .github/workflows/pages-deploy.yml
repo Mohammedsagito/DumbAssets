@@ -19,6 +19,8 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Optionally use a personal access token if provided via secret GH_PAGES_TOKEN
+          personal_token: ${{ secrets.GH_PAGES_TOKEN }}
           publish_dir: ./public
           publish_branch: gh-pages
           user_name: 'github-actions[bot]'

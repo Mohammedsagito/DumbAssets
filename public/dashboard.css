@@ -28,3 +28,14 @@
   .dashboard-grid{grid-template-columns:1fr;}
   .map{height:50vh}
 }
+
+/* Modal */
+.modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:9999}
+.modal[aria-hidden="false"]{display:flex}
+.modal-content{background:#fff;padding:16px;border-radius:8px;max-width:420px;width:90%}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+/* Small polish */
+.controls .btn{padding:8px 12px}
+.shipments-panel{box-shadow:0 2px 6px rgba(11,49,66,0.06)}
+.detail{box-shadow:0 2px 6px rgba(11,49,66,0.04)}

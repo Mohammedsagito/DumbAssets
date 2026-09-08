@@ -508,6 +508,21 @@ app.get('/share/:token', (req,res)=>{
     }catch(e){ console.error(e); res.status(500).send('Error'); }
 });
 
+// Revoke a share token (DELETE)
+app.delete('/api/share/:token', (req, res) => {
+    try {
+        const token = req.params.token;
+        const tokens = readShareTokens();
+        if (!tokens[token]) return res.status(404).json({ ok: false, error: 'Token not found' });
+        delete tokens[token];
+        writeShareTokens(tokens);
+        return res.json({ ok: true });
+    } catch (e) {
+        console.error('Error revoking token', e);
+        return res.status(500).json({ ok: false, error: e.message });
+    }
+});
+
 // REST endpoint to POST tracking updates (and emit via socket)
 app.post('/api/track/:id', (req,res)=>{
     try{
