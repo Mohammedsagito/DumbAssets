@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - DumbAssets</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/dashboard.css">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.20.0/mapbox-gl.css" rel="stylesheet" />
+</head>
+<body>
+  <header class="app-header">
+    <h1 id="site-title">DumbAssets Dashboard</h1>
+    <div class="header-actions">
+      <a class="btn" href="/tracking.html?id=demo">Open Demo Tracker</a>
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+    <aside class="shipments-panel">
+      <h2>Shipments</h2>
+      <input id="search" placeholder="Search shipments" />
+      <ul id="shipments-list" class="list"></ul>
+    </aside>
+
+    <section class="map-panel">
+      <div id="map" class="map"></div>
+      <div class="detail">
+        <h3 id="detail-title">Select a shipment</h3>
+        <div id="detail-body">
+          <p>Choose a shipment from the left to view live location.</p>
+        </div>
+        <div class="controls">
+          <button id="start-track" class="btn">Start Sim</button>
+          <button id="stop-track" class="btn">Stop</button>
+          <a id="open-tracker" class="btn" href="#">Open Tracker Page</a>
+          <button id="copy-link" class="btn">Copy Link</button>
+          <button id="create-share" class="btn">Create Share Link</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.20.0/mapbox-gl.js"></script>
+  <script src="/dashboard.js"></script>
+</body>
+</html>

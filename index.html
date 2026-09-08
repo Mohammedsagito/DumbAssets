@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">DumbAssets</title>
+    <script src="config.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="assets/dumbassets.svg">
+    <link rel="manifest" href="manifest.json">
+    <script src="js/chart.js"></script>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <div class="header-top">
+                <div id="demo-banner" style="display: none;" class="demo-banner">
+                    <span>🧪 DEMO MODE (limited functionality)</span>
+                </div>
+            </div>
+            <div class="header-row">
+                <div id="header-title" class="header-title">
+                    <h1 id="siteTitle">DumbAssets</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="homeBtn" class="header-btn" aria-label="Go to Dashboard">
+                        <svg  xmlns="http://www.w3.org/2000/svg">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
+                            <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                            <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+                        </svg>
+                    </button>
+                    <button id="settingsBtn" class="header-btn" aria-label="Settings">
+                        <svg xmlns="http://www.w3.org/2000/svg">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
+                            <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                        </svg>
+                    </button>
+                    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                        <svg class="moon">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+                        </svg>
+                        <svg class="sun">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M14.828 14.828a4 4 0 1 0 -5.656 -5.656a4 4 0 0 0 5.656 5.656z" />
+                            <path d="M6.343 17.657l-1.414 1.414" />
+                            <path d="M6.343 6.343l-1.414 -1.414" />
+                            <path d="M17.657 6.343l1.414 -1.414" />
+                            <path d="M17.657 17.657l1.414 1.414" />
+                            <path d="M4 12h-2" />
+                            <path d="M12 4v-2" />
+                            <path d="M20 12h2" />
+                            <path d="M12 20v2" />
+                        </svg>
+                    </button>
+                    <button id="sidebarToggle" class="sidebar-toggle hidden" aria-label="Toggle asset list">
+                        <svg id="sidebarOpen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                            <path d="M9 4v16" />
+                            <path d="M14 10l2 2l-2 2" />
+                        </svg>
+
+                        <svg id="sidebarClose" style="display: none" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                            <path d="M9 4v16" /><path d="M15 10l-2 2l2 2" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="sidebarOverlay" class="sidebar-overlay"></div>
+            <div class="app-container">
+                <!-- Left panel: Asset list with search -->
+                <div class="sidebar">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search assets...">
+                    </div>
+                    <div class="button-container">
+                        <button id="addAssetBtn" class="action-button">Add Asset</button>
+                        <button id="importAssetsBtn" class="action-button">Import Assets</button>
+                    </div>
+                    <div class="sort-container">
+                        <button id="sortNameBtn" class="sort-button" data-sort="name" data-direction="asc">
+                            <span>Ab</span>
+                            <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                        </button>
+                        <button id="sortWarrantyBtn" class="sort-button" data-sort="warranty" data-direction="asc">
+                            <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                        </button>
+                        <button id="clearFiltersBtn" class="sort-button clear-filters" title="Clear all filters">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="15" y1="9" x2="9" y2="15" />
+                                <line x1="9" y1="9" x2="15" y2="15" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="asset-list" id="assetList">
+                        <!-- Assets will be listed here dynamically -->
+                        <div class="empty-state">
+                            <p>No assets found. Add your first asset to get started.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Right panel: Asset details and sub-assets -->
+                <div class="main-content">
+                    <div id="assetDetails">
+                        <!-- Selected asset details will appear here -->
+                    </div>
+                    <div id="subAssetContainer" class="hidden">
+                        <fieldset class="dashboard-legend">
+                            <legend class="dashboard-legend-title">Components</legend>
+                            <div class="sub-asset-header">
+                                <button id="addSubAssetBtn" class="add-sub-asset-btn">+ Add Component</button>
+                            </div>
+                            <div id="subAssetList" class="sub-asset-list">
+                                <!-- Sub-assets will be listed here dynamically -->
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Add/Edit Asset Modal -->
+            <div id="assetModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="addAssetTitle" class="modal-title">Add Asset</h2>
+                        <div class="close-btn">
+                            <span>&times;</span>
+                        </div>
+                    </div>
+                    <form id="assetForm">
+                        <div class="form-group">
+                            <label for="assetName">Name *</label>
+                            <input type="text" id="assetName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="assetManufacturer">Manufacturer</label>
+                            <input type="text" id="assetManufacturer" name="manufacturer">
+                        </div>
+                        <div class="form-group">
+                            <label for="assetModel">Model Number</label>
+                            <input type="text" id="assetModel" name="modelNumber">
+                        </div>
+                        <div class="form-group">
+                            <label for="assetSerial">Serial Number</label>
+                            <input type="text" id="assetSerial" name="serialNumber">
+                        </div>
+                        <div class="form-group">
+                            <label for="assetPurchaseDate">Purchase Date</label>
+                            <input type="date" id="assetPurchaseDate" name="purchaseDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="assetPrice">Price</label>
+                            <input type="number" id="assetPrice" name="price" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="assetQuantity">Quantity</label>
+                            <input type="number" id="assetQuantity" name="quantity" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="assetWarrantyScope">Warranty Scope</label>
+                            <input type="text" id="assetWarrantyScope" name="warrantyScope">
+                        </div>
+                        <div class="form-group warranty-expiration-group">
+                            <label for="assetWarrantyExpiration">Warranty Expiration</label>
+                            <div class="warranty-expiration-inputs">
+                                <input type="date" id="assetWarrantyExpiration" name="warrantyExpiration">
+                                <label class="lifetime-warranty-label">
+                                    <input type="checkbox" id="assetWarrantyLifetime" name="warrantyLifetime">
+                                    Lifetime
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="addSecondaryWarranty" class="secondary-warranty-btn" title="Add Secondary Warranty">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Warranty
+                            </button>
+                            <div id="secondaryWarrantyFields" class="secondary-warranty-fields" style="display: none;">
+                                <div class="form-group">
+                                    <label for="assetSecondaryWarrantyScope">Secondary Warranty Scope</label>
+                                    <input type="text" id="assetSecondaryWarrantyScope" name="secondaryWarrantyScope">
+                                </div>
+                                <div class="form-group warranty-expiration-group">
+                                    <label for="assetSecondaryWarrantyExpiration">Secondary Warranty Expiration</label>
+                                    <div class="warranty-expiration-inputs">
+                                        <input type="date" id="assetSecondaryWarrantyExpiration" name="secondaryWarrantyExpiration">
+                                        <label class="lifetime-warranty-label">
+                                            <input type="checkbox" id="assetSecondaryWarrantyLifetime" name="secondaryWarrantyLifetime">
+                                            Lifetime
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="assetLink">Link</label>
+                            <input type="url" id="assetLink" name="link">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assetTags">Tags</label>
+                            <div class="tag-input-wrapper">
+                                <input type="text" id="assetTags" name="tags" placeholder="Add tags (press enter or comma to add)" enterkeyhint="enter" autocomplete="off">
+                            </div>
+                            <div class="tag-container" id="assetTagsContainer"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assetNotes">Notes</label>
+                            <textarea id="assetNotes" name="notes"></textarea>
+                        </div>
+
+                        <div id="assetMaintenanceSection" class="collapsible-section" data-collapsed="true">
+                            <div class="collapsible-header">
+                                <h3>Maintenance Events</h3>
+                                <svg class="collapsible-toggle" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="collapsible-content">
+                                <div id="assetMaintenanceEvents">
+                                    <!-- Maintenance events will be added here dynamically -->
+                                </div>
+                                <button type="button" id="addMaintenanceEvent" class="secondary-warranty-btn">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Add Maintenance Event
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="assetFileUploader" class="collapsible-section" data-collapsed="true">
+                            <div class="collapsible-header">
+                                <h3>File Attachments</h3>
+                                <svg class="collapsible-toggle" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="collapsible-content">
+                                <div class="form-group">
+                                    <label for="assetPhoto">Photo</label>
+                                    <div class="file-upload-grid">
+                                        <div class="file-upload-box" data-target="assetPhoto">
+                                            <input type="file" id="assetPhoto" accept="image/*" class="file-input" multiple>
+                                            <div class="upload-content">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                    <polyline points="17 8 12 3 7 8"/>
+                                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                                </svg>
+                                                <span>Drag & drop or click to upload photos</span>
+                                            </div>
+                                        </div>
+                                        <div id="photoPreview" class="preview-grid"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="assetReceipt">Receipt</label>
+                                    <div class="file-upload-grid">
+                                        <div class="file-upload-box" data-target="assetReceipt">
+                                            <input type="file" id="assetReceipt" accept=".pdf,.jpg,.jpeg,.png" class="file-input" multiple>
+                                            <div class="upload-content">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                    <polyline points="14 2 14 8 20 8"/>
+                                                </svg>
+                                                <span>Drag & drop or click to upload receipts</span>
+                                            </div>
+                                        </div>
+                                        <div id="receiptPreview" class="preview-grid"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="assetManual">Manual</label>
+                                    <div class="file-upload-grid">
+                                        <div class="file-upload-box" data-target="assetManual">
+                                            <input type="file" id="assetManual" accept=".pdf" class="file-input" multiple>
+                                            <div class="upload-content">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                    <polyline points="14 2 14 8 20 8"/>
+                                                </svg>
+                                                <span>Drag & drop or click to upload manuals</span>
+                                            </div>
+                                        </div>
+                                        <div id="manualPreview" class="preview-grid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="save-btn">Save<div class="spinner"></div></button>
+                            <button type="button" class="cancel-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        
+            <!-- Add/Edit Sub-Asset Modal -->
+            <div id="subAssetModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="addComponentTitle" class="modal-title">Add Component</h2>
+                        <div>
+                            <span class="close-btn">&times;</span>
+                        </div>
+                    </div>
+                    <form id="subAssetForm">
+                        <input type="hidden" id="subAssetId" name="id">
+                        <input type="hidden" id="parentAssetId" name="parentId">
+                        <input type="hidden" id="parentSubAssetId" name="parentSubId">
+                        
+                        <div class="form-group">
+                            <label for="subAssetName">Name*</label>
+                            <input type="text" id="subAssetName" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetManufacturer">Manufacturer</label>
+                            <input type="text" id="subAssetManufacturer" name="manufacturer">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetModel">Model Number</label>
+                            <input type="text" id="subAssetModel" name="modelNumber">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetSerial">Serial Number</label>
+                            <input type="text" id="subAssetSerial" name="serialNumber">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetPurchaseDate">Purchase Date</label>
+                            <input type="date" id="subAssetPurchaseDate" name="purchaseDate">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetPurchasePrice">Purchase Price</label>
+                            <input type="number" id="subAssetPurchasePrice" name="purchasePrice" step="0.01">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetQuantity">Quantity</label>
+                            <input type="number" id="subAssetQuantity" name="quantity" min="1" value="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetLink">Link</label>
+                            <input type="url" id="subAssetLink" name="link">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetWarrantyScope">Warranty Scope</label>
+                            <input type="text" id="subAssetWarrantyScope" name="warrantyScope">
+                        </div>
+                        
+                        <div class="form-group warranty-expiration-group">
+                            <label for="subAssetWarrantyExpiration">Warranty Expiration</label>
+                            <div class="warranty-expiration-inputs">
+                                <input type="date" id="subAssetWarrantyExpiration" name="warrantyExpiration">
+                                <label class="lifetime-warranty-label">
+                                    <input type="checkbox" id="subAssetWarrantyLifetime" name="warrantyLifetime">
+                                    Lifetime
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subAssetTags">Tags</label>
+                            <div class="tag-input-wrapper">
+                                <input type="text" id="subAssetTags" name="tags" placeholder="Add tags (press enter or comma to add)" enterkeyhint="enter" autocomplete="off">
+                            </div>
+                            <div class="tag-container" id="subAssetTagsContainer"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subAssetNotes">Notes</label>
+                            <textarea id="subAssetNotes" name="notes"></textarea>
+                        </div>
+
+                        <div id="subAssetMaintenanceSection" class="collapsible-section" data-collapsed="true">
+                            <div class="collapsible-header">
+                                <h3>Maintenance Events</h3>
+                                <svg class="collapsible-toggle" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="collapsible-content">
+                                <div id="subAssetMaintenanceEvents">
+                                    <!-- Maintenance events will be added here dynamically -->
+                                </div>
+                                <button type="button" id="addSubAssetMaintenanceEvent" class="secondary-warranty-btn">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Add Maintenance Event
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="subAssetFileUploader" class="collapsible-section" data-collapsed="true">
+                            <div class="collapsible-header">
+                                <h3>File Attachments</h3>
+                                <svg class="collapsible-toggle" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="collapsible-content">
+                                <div class="form-group">
+                                    <label for="subAssetPhoto">Photo</label>
+                                    <div class="file-upload-grid">
+                                        <div class="file-upload-box" data-target="subAssetPhoto">
+                                            <input type="file" id="subAssetPhoto" accept="image/*" class="file-input" multiple>
+                                            <div class="upload-content">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                    <polyline points="17 8 12 3 7 8"/>
+                                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                                </svg>
+                                                <span>Drag & drop or click to upload photos</span>
+                                            </div>
+                                        </div>
+                                        <div id="subPhotoPreview" class="preview-grid"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="subAssetReceipt">Receipt</label>
+                                    <div class="file-upload-grid">
+                                        <div class="file-upload-box" data-target="subAssetReceipt">
+                                            <input type="file" id="subAssetReceipt" accept=".pdf,.jpg,.jpeg,.png" class="file-input" multiple>
+                                            <div class="upload-content">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                    <polyline points="14 2 14 8 20 8"/>
+                                                </svg>
+                                                <span>Drag & drop or click to upload receipts</span>
+                                            </div>
+                                        </div>
+                                        <div id="subReceiptPreview" class="preview-grid"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="subAssetManual">Manual</label>
+                                    <div class="file-upload-grid">
+                                        <div class="file-upload-box" data-target="subAssetManual">
+                                            <input type="file" id="subAssetManual" accept=".pdf,.doc,.docx,.md,.txt" class="file-input" multiple>
+                                            <div class="upload-content">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                    <polyline points="14 2 14 8 20 8"/>
+                                                </svg>
+                                                <span>Drag & drop or click to upload manuals</span>
+                                            </div>
+                                        </div>
+                                        <div id="subManualPreview" class="preview-grid"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="save-btn">Save<div class="spinner"></div></button>
+                            <button type="button" class="cancel-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Import Modal -->
+            <div id="importModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="importAssetTitle" class="modal-title">Import Assets</h2>
+                        <div>
+                            <span class="close-btn">&times;</span>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="import-container">
+                            <div class="form-group">
+                                <!-- <label for="importFile">Import</label> -->
+                                <div class="file-upload-grid">
+                                    <div class="file-upload-box" data-target="importFile">
+                                        <input type="file" id="importFile" accept=".csv,.xls,.xlsx" class="file-input">
+                                        <div class="upload-content">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                <polyline points="14 2 14 8 20 8"/>
+                                            </svg>
+                                            <span>Accepted types: .csv, .xls, .xlsx</span>
+                                        </div>
+                                    </div>
+                                    <div id="importFilePreview" class="preview-grid"></div>
+                                </div>
+                            </div>
+                            <div class="column-mapping">
+                                <h3>Column Mapping</h3>
+                                <div class="mapping-container">
+                                    <div class="mapping-row">
+                                        <label>Name:</label>
+                                        <select id="nameColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Manufacturer:</label>
+                                        <select id="manufacturerColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Model:</label>
+                                        <select id="modelColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Serial:</label>
+                                        <select id="serialColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Purchase Date:</label>
+                                        <select id="purchaseDateColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Purchase Price:</label>
+                                        <select id="purchasePriceColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Quantity:</label>
+                                        <select id="quantityColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Notes:</label>
+                                        <select id="notesColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>URL:</label>
+                                        <select id="urlColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Warranty:</label>
+                                        <select id="warrantyColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Warranty Expiration:</label>
+                                        <select id="warrantyExpirationColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Lifetime:</label>
+                                        <select id="lifetimeColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>2nd Warranty Scope:</label>
+                                        <select id="secondaryWarrantyColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>2nd Warranty Expiration:</label>
+                                        <select id="secondaryWarrantyExpirationColumn" class="column-select"></select>
+                                    </div>
+                                    <div class="mapping-row">
+                                        <label>Tags:</label>
+                                        <select id="tagsColumn" class="column-select"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="import-actions">
+                                <button id="downloadTemplateBtn" class="action-button">Download Template</button>
+                                <button id="startImportBtn" class="action-button" disabled>Start Import<div class="spinner"></div></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="settingsModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="settingsTitle" class="modal-title">Settings</h2>
+                        <div class="close-btn">
+                            <span>&times;</span>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="settings-tabs">
+                            <div class="tab-nav">
+                                <button class="tab-btn active" data-tab="notifications">Notifications</button>
+                                <button class="tab-btn" data-tab="interface">Interface</button>
+                                <button class="tab-btn" data-tab="system">System</button>
+                                <!-- Add more tab buttons here in the future -->
+                            </div>
+                            <div class="tab-content">
+                                <!-- Notifications Settings Tab -->
+                                <div class="tab-pane active" id="notifications-tab">
+                                    <form id="notificationForm">
+                                        <fieldset>
+                                            <legend>Events</legend>
+                                            <div class="settings-grid">
+                                                <div class="toggle-row">
+                                                    <span>Asset Added</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notifyAdd" id="notifyAdd">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Asset Deleted</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notifyDelete" id="notifyDelete">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Asset Edited</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notifyEdit" id="notifyEdit">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset style="margin-top:1em;">
+                                            <legend>Warranty Expirations & Maintenance</legend>
+                                            <div class="settings-grid">
+                                                <div class="toggle-row">
+                                                    <span>1 Month</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notify1Month" id="notify1Month">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>2 Weeks</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notify2Week" id="notify2Week">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>1 Week</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notify7Day" id="notify7Day">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>3 Days</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notify3Day" id="notify3Day">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Maintenance</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" name="notifyMaintenance" id="notifyMaintenance">
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </form>
+                                </div>
+                                <div class="tab-pane" id="interface-tab">
+                                    <form id="interfaceSettingsForm">
+                                        <fieldset>
+                                            <legend>Reorder Sections</legend>
+                                            <p class="settings-hint">Drag and drop to reorder dashboard sections:</p>
+                                            <div class="sortable-list" id="dashboardSections">
+                                                <div class="sortable-item" data-section="analytics">
+                                                    <div class="sortable-handle"></div>
+                                                    <span>Analytics</span>
+                                                </div>
+                                                <div class="sortable-item" data-section="totals">
+                                                    <div class="sortable-handle"></div>
+                                                    <span>Totals</span>
+                                                </div>
+                                                <div class="sortable-item" data-section="warranties">
+                                                    <div class="sortable-handle"></div>
+                                                    <span>Warranties</span>
+                                                </div>
+                                                <div class="sortable-item" data-section="events">
+                                                    <div class="sortable-handle"></div>
+                                                    <span>Events</span>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset>
+                                            <legend>Toggle Sections</legend>
+                                            <div id="dashboardSectionToggles" class="settings-grid">
+                                                <div class="toggle-row">
+                                                    <span>Show Analytics</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleAnalytics" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Show Totals</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleTotals" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Show Warranties</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleWarranties" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Show Events</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleEvents" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        <fieldset>
+                                            <legend>Toggle Cards</legend>
+                                            <div id="dashboardCardToggles" class="settings-grid">
+                                                <div class="toggle-row">
+                                                    <span>Total Assets</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardTotalAssets" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Total Components</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardTotalComponents" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Total Value</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardTotalValue" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Warranties Total</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardWarrantiesTotal" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Warranties In 60</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardWarrantiesWithin60" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Warranties In 30</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardWarrantiesWithin30" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Warranties Expired</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardWarrantiesExpired" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="toggle-row">
+                                                    <span>Warranties Active</span>
+                                                    <label class="toggle-switch">
+                                                        <input type="checkbox" id="toggleCardWarrantiesActive" checked>
+                                                        <span class="slider"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </form>
+                                </div>
+
+                                <!-- System Settings Tab -->
+                                <div class="tab-pane" id="system-tab">
+                                    <form id="systemSettingsForm">
+                                        <fieldset>
+                                            <legend>Data Export</legend>
+                                                <div class="export-section">
+                                                    <div>
+                                                        <button type="button" id="exportDataBtn" class="action-button export-btn">
+                                                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-15"></path>
+                                                                <path d="M7 10l5 5 5-5"></path>
+                                                                <path d="M12 15V3"></path>
+                                                            </svg>
+                                                            Export All Data CSV
+                                                            <div class="spinner"></div>
+                                                        </button>
+                                                    </div>
+                                                    <div>
+                                                        <button type="button" id="exportSimpleDataBtn" class="action-button export-btn">
+                                                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-15"></path>
+                                                                <path d="M7 10l5 5 5-5"></path>
+                                                                <path d="M12 15V3"></path>
+                                                            </svg>
+                                                            Export Simple CSV
+                                                            <div class="spinner"></div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                        </fieldset>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Settings modal actions - now outside of individual forms -->
+                            <div class="modal-actions">
+                                <button type="button" id="saveSettings" class="action-button">Save<div class="spinner"></div></button>
+                                <button type="button" id="cancelSettings" class="action-button" style="background: var(--secondary-color);">Cancel</button>
+                                <button type="button" id="testNotificationSettings" class="action-button" style="background: var(--success-color);">Test<div class="spinner"></div></button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="dumbware-credit">
+        Built by <a href="https://dumbware.io" target="_blank" rel="noopener noreferrer">DumbWare</a>
+    </div>
+    <div id="toast-container" class="toast-container"></div>
+    <script src="script.js" type="module"></script>
+    <script src="js/datepicker-enhancement.js"></script>
+</body>
+</html>
