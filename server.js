@@ -541,6 +541,17 @@ app.post('/api/track/:id', (req,res)=>{
 // GET current tracking
 app.get('/api/track/:id', (req,res)=>{ const store = readTrackingData(); res.json(store[req.params.id]||null); });
 
+// GET all tracking entries
+app.get('/api/tracking', (req, res) => {
+    try {
+        const store = readTrackingData();
+        res.json(store);
+    } catch (e) {
+        console.error('Error reading tracking data', e);
+        res.status(500).json({});
+    }
+});
+
 // --- ASSET MANAGEMENT (existing code preserved) ---
 // File paths
 const assetsFilePath = path.join(DATA_DIR, 'Assets.json');
