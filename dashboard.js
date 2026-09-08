@@ -54,8 +54,13 @@
 
   function initMap(){
     const center = [-0.1278,51.5074];
-    const style = { version: 8, sources: { osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256 } }, layers: [{ id: 'osm', type: 'raster', source: 'osm' }] };
-    map = new maplibregl.Map({ container: 'map', style, center, zoom: 9 });
+    let styleObj;
+    if (mapboxToken) {
+      styleObj = 'https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token=' + mapboxToken;
+    } else {
+      styleObj = { version: 8, sources: { osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256 } }, layers: [{ id: 'osm', type: 'raster', source: 'osm' }] };
+    }
+    map = new maplibregl.Map({ container: 'map', style: styleObj, center, zoom: 9 });
     marker = new maplibregl.Marker({ color: '#FF8C00' }).setLngLat(center).addTo(map);
     route = [];
     for (let i=0;i<36;i++){ const ang=i*(Math.PI/18); route.push([center[0]+Math.cos(ang)*0.05, center[1]+Math.sin(ang)*0.05]); }
@@ -89,15 +94,37 @@
 
   // create share link via server
   const createShareBtn = document.getElementById('create-share');
+  // modal elements
+  const shareModal = document.getElementById('share-modal');
+  const shareBody = document.getElementById('share-modal-body');
+  const shareCopy = document.getElementById('share-copy');
+  const shareRevoke = document.getElementById('share-revoke');
+  const shareClose = document.getElementById('share-close');
+
   createShareBtn.addEventListener('click', async ()=>{
     if (!selected) return alert('Select a shipment first');
     try{
+      shareModal.setAttribute('aria-hidden','false');
+      shareBody.textContent = 'Generating...';
       const res = await fetch(`/api/share/${encodeURIComponent(selected.id)}`, { method: 'POST' });
       const data = await res.json();
-      if (data && data.url){ navigator.clipboard.writeText(data.url); alert('Share link created and copied'); }
-      else alert('Failed to create share link');
-    }catch(e){ alert('Error creating share link'); }
+      if (data && data.url){
+        shareBody.innerHTML = `<input id="share-url" style="width:100%" value="${data.url}" readonly>`;
+        shareCopy.onclick = ()=>{ navigator.clipboard.writeText(data.url); alert('Copied'); };
+        shareRevoke.onclick = async ()=>{
+          const ok = confirm('Revoke this share link?');
+          if (!ok) return;
+          const token = data.token;
+          const r = await fetch(`/api/share/${encodeURIComponent(token)}`, { method: 'DELETE' });
+          const jr = await r.json();
+          if (jr && jr.ok){ shareBody.textContent = 'Share link revoked'; }
+          else shareBody.textContent = 'Failed to revoke';
+        };
+      } else { shareBody.textContent = 'Failed to create share link'; }
+    }catch(e){ shareBody.textContent = 'Error creating share link'; }
   });
+
+  shareClose.addEventListener('click', ()=>{ shareModal.setAttribute('aria-hidden','true'); });
 
   // simulate many shipments
   const simulateMany = async (count=5)=>{

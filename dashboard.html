@@ -41,6 +41,19 @@
     </section>
   </main>
 
+    <!-- Share modal -->
+    <div id="share-modal" class="modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+        <h3 id="share-modal-title">Share Link</h3>
+        <p id="share-modal-body">Generating...</p>
+        <div class="modal-actions">
+          <button id="share-copy" class="btn">Copy</button>
+          <button id="share-revoke" class="btn">Revoke</button>
+          <button id="share-close" class="btn">Close</button>
+        </div>
+      </div>
+    </div>
+
   <script src="/config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js" crossorigin="anonymous"></script>

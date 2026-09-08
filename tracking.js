@@ -15,13 +15,12 @@
   // Fallback center
   const start = [ -0.1278, 51.5074 ];
 
-  const style = {
-    version: 8,
-    sources: {
-      osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256 }
-    },
-    layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
-  };
+  let style;
+  if (token) {
+    style = 'https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token=' + token;
+  } else {
+    style = { version: 8, sources: { osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256 } }, layers: [{ id: 'osm', type: 'raster', source: 'osm' }] };
+  }
 
   const map = new maplibregl.Map({ container: 'map', style, center: start, zoom: 9 });
   let marker = new maplibregl.Marker({ color: '#FFD700' }).setLngLat(start).addTo(map);
