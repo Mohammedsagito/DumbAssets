@@ -1,0 +1,65 @@
+(function(){
+  const token = window.appConfig && window.appConfig.mapboxToken ? window.appConfig.mapboxToken : '';
+  mapboxgl.accessToken = token;
+
+  // Get tracking ID from query (?id=) or URL path /track/:id
+  const params = new URLSearchParams(window.location.search);
+  let trackId = params.get('id') || params.get('track') || '';
+  if (!trackId) {
+    const pathParts = window.location.pathname.split('/');
+    trackId = pathParts[pathParts.length-1] || 'demo-1';
+  }
+  document.getElementById('track-id').textContent = trackId;
+
+  // Fallback center
+  const start = [ -0.1278, 51.5074 ];
+
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token=' + token,
+    center: start,
+    zoom: 9
+  });
+
+  let marker = new mapboxgl.Marker({ color: '#FFD700' })
+    .setLngLat(start)
+    .addTo(map);
+
+  const coordsEl = { lat: document.getElementById('lat'), lng: document.getElementById('lng'), speed: document.getElementById('speed') };
+
+  // Simulated path (a simple circular route near start)
+  const route = [];
+  for (let i=0;i<36;i++){
+    const angle = i * (Math.PI/18);
+    const radius = 0.05; // degrees
+    route.push([ start[0] + Math.cos(angle)*radius, start[1] + Math.sin(angle)*radius ]);
+  }
+
+  let index = 0;
+  let intervalId = null;
+
+  function updatePosition() {
+    const p = route[index % route.length];
+    marker.setLngLat(p);
+    map.panTo(p);
+    coordsEl.lat.textContent = p[1].toFixed(6);
+    coordsEl.lng.textContent = p[0].toFixed(6);
+    coordsEl.speed.textContent = (Math.random()*60).toFixed(1);
+    index++;
+  }
+
+  document.getElementById('start').addEventListener('click', ()=>{
+    if (intervalId) return;
+    intervalId = setInterval(updatePosition, 2000);
+    updatePosition();
+  });
+
+  document.getElementById('stop').addEventListener('click', ()=>{
+    if (!intervalId) return;
+    clearInterval(intervalId);
+    intervalId = null;
+  });
+
+  // Auto-start simulation for demo
+  setTimeout(()=>document.getElementById('start').click(),800);
+})();
