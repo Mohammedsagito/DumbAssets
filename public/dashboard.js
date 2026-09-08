@@ -1,6 +1,7 @@
 (function(){
   const mapboxToken = window.appConfig && window.appConfig.mapboxToken ? window.appConfig.mapboxToken : '';
   if (mapboxToken) mapboxgl.accessToken = mapboxToken;
+  const socket = (typeof io === 'function') ? io() : null;
 
   const listEl = document.getElementById('shipments-list');
   const searchEl = document.getElementById('search');
@@ -40,6 +41,10 @@
     `;
     openTracker.href = `/tracking.html?id=${encodeURIComponent(s.id||'demo')}`;
     startSimulation();
+    // subscribe to realtime updates for this shipment
+    if (socket && s.id) {
+      socket.emit('subscribe', s.id);
+    }
   }
 
   // Map & simulation
@@ -72,6 +77,28 @@
   stopBtn.addEventListener('click', stopSimulation);
 
   searchEl.addEventListener('input',(e)=>renderList(e.target.value));
+
+  // copy link
+  const copyBtn = document.getElementById('copy-link');
+  copyBtn.addEventListener('click', ()=>{
+    if (!selected) return alert('Select a shipment first');
+    const url = `${window.location.origin}/tracking.html?id=${encodeURIComponent(selected.id)}`;
+    navigator.clipboard.writeText(url).then(()=>alert('Link copied to clipboard'));
+  });
+
+  // socket realtime handling
+  if (socket) {
+    socket.on('position', (pos)=>{
+      if (!pos || !pos.id) return;
+      // if current selected matches, update marker and detail
+      if (selected && selected.id === pos.id) {
+        if (!map) initMap();
+        marker.setLngLat([pos.lng, pos.lat]);
+        map.panTo([pos.lng, pos.lat]);
+        detailBody.innerHTML = `\n          <p><strong>ID:</strong> ${pos.id||''}</p>\n          <p><strong>Lat:</strong> ${pos.lat||''}</p>\n          <p><strong>Lng:</strong> ${pos.lng||''}</p>\n          <p><strong>Speed:</strong> ${pos.speed||''}</p>\n          <p><strong>Updated:</strong> ${pos.updatedAt||''}</p>\n        `;
+      }
+    });
+  }
 
   // Initial load
   fetchShipments().then(data=>{ shipments = Array.isArray(data)?data:[]; renderList(); });

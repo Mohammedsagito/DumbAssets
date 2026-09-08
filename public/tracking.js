@@ -1,6 +1,7 @@
 (function(){
   const token = window.appConfig && window.appConfig.mapboxToken ? window.appConfig.mapboxToken : '';
   mapboxgl.accessToken = token;
+  const socket = (typeof io === 'function') ? io() : null;
 
   // Get tracking ID from query (?id=) or URL path /track/:id
   const params = new URLSearchParams(window.location.search);
@@ -45,6 +46,11 @@
     coordsEl.lat.textContent = p[1].toFixed(6);
     coordsEl.lng.textContent = p[0].toFixed(6);
     coordsEl.speed.textContent = (Math.random()*60).toFixed(1);
+    const payload = { id: trackId, lat: p[1], lng: p[0], speed: parseFloat(coordsEl.speed.textContent) };
+    // POST to REST API
+    fetch(`/api/track/${encodeURIComponent(trackId)}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) }).catch(()=>{});
+    // Emit via socket
+    if (socket) socket.emit('position', payload);
     index++;
   }
 
