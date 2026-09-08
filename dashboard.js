@@ -4,6 +4,10 @@
   const socket = (typeof io === 'function') ? io() : null;
 
   const listEl = document.getElementById('shipments-list');
+  // create a container for cards
+  const cardsContainer = document.createElement('div'); cardsContainer.className = 'cards-grid';
+  listEl.parentNode.replaceChild(cardsContainer, listEl);
+  
   const searchEl = document.getElementById('search');
   const detailTitle = document.getElementById('detail-title');
   const detailBody = document.getElementById('detail-body');
@@ -17,17 +21,22 @@
   }
 
   function renderList(filter){
-    listEl.innerHTML = '';
+    cardsContainer.innerHTML = '';
     const items = shipments.filter(s=>{
       if (!filter) return true;
       const q = filter.toLowerCase();
-      return (s.name||'').toLowerCase().includes(q) || (s.id||'').toLowerCase().includes(q);
+      return (s.name||'').toLowerCase().includes(q) || (s.id||'').toLowerCase().includes(q) || ((s.trackingNumber||'').toLowerCase().includes(q));
     });
     items.forEach(it=>{
-      const li = document.createElement('li');
-      li.textContent = `${it.name || 'Unnamed'} — ${it.id || ''}`;
-      li.addEventListener('click', ()=>selectShipment(it));
-      listEl.appendChild(li);
+      const card = document.createElement('div'); card.className='card';
+      const meta = document.createElement('div'); meta.className='meta';
+      const title = document.createElement('div'); title.className='title'; title.textContent = it.name || 'Unnamed';
+      const sub = document.createElement('div'); sub.className='sub'; sub.textContent = it.modelNumber ? `${it.modelNumber}` : '';
+      meta.appendChild(title); meta.appendChild(sub);
+      const idEl = document.createElement('div'); idEl.className='id'; idEl.textContent = it.trackingNumber || it.id || '';
+      card.appendChild(meta); card.appendChild(idEl);
+      card.addEventListener('click', ()=>selectShipment(it));
+      cardsContainer.appendChild(card);
     });
   }
 
@@ -165,6 +174,25 @@
   }
 
   // Initial load
-  fetchShipments().then(data=>{ shipments = Array.isArray(data)?data:[]; renderList(); });
+  Promise.all([fetchShipments(), fetch('/api/tracking').then(r=>r.json()).catch(()=>({}))]).then(([data, tracking])=>{
+    shipments = Array.isArray(data)?data:[];
+    // attach tracking info to shipments if present
+    shipments.forEach(s=>{ if (tracking && tracking[s.id]) s._tracking = tracking[s.id]; });
+    renderList();
+    updateKPIs(shipments, tracking);
+  });
+
+  function updateKPIs(assets, tracking){
+    const total = assets.length;
+    const trackedIds = Object.keys(tracking||{});
+    const active = trackedIds.length;
+    const speeds = trackedIds.map(id=>Number(tracking[id].speed)||0).filter(v=>v>0);
+    const avg = speeds.length?Math.round(speeds.reduce((a,b)=>a+b,0)/speeds.length):0;
+    const lastUpdated = trackedIds.map(id=>tracking[id].updatedAt||0).sort().pop()||'—';
+    document.getElementById('kpi-total').querySelector('.kpi-value').textContent = total;
+    document.getElementById('kpi-active').querySelector('.kpi-value').textContent = active;
+    document.getElementById('kpi-speed').querySelector('.kpi-value').textContent = avg + ' km/h';
+    document.getElementById('kpi-updated').querySelector('.kpi-value').textContent = lastUpdated==='—'? '—' : new Date(lastUpdated).toLocaleString();
+  }
 
 })();
