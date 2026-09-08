@@ -1,6 +1,6 @@
 (function(){
+  // Use MapLibre with OpenStreetMap tiles for public tracking maps
   const mapboxToken = window.appConfig && window.appConfig.mapboxToken ? window.appConfig.mapboxToken : '';
-  if (mapboxToken) mapboxgl.accessToken = mapboxToken;
   const socket = (typeof io === 'function') ? io() : null;
 
   const listEl = document.getElementById('shipments-list');
@@ -54,8 +54,9 @@
 
   function initMap(){
     const center = [-0.1278,51.5074];
-    map = new mapboxgl.Map({container:'map',style: mapboxToken?('https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token='+mapboxToken):'https://demotiles.example/style.json',center,zoom:9});
-    marker = new mapboxgl.Marker({color:'#FF8C00'}).setLngLat(center).addTo(map);
+    const style = { version: 8, sources: { osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256 } }, layers: [{ id: 'osm', type: 'raster', source: 'osm' }] };
+    map = new maplibregl.Map({ container: 'map', style, center, zoom: 9 });
+    marker = new maplibregl.Marker({ color: '#FF8C00' }).setLngLat(center).addTo(map);
     route = [];
     for (let i=0;i<36;i++){ const ang=i*(Math.PI/18); route.push([center[0]+Math.cos(ang)*0.05, center[1]+Math.sin(ang)*0.05]); }
   }

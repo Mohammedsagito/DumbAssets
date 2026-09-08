@@ -1,6 +1,6 @@
 (function(){
+  // Using MapLibre with OpenStreetMap tiles to avoid Mapbox token requirement
   const token = window.appConfig && window.appConfig.mapboxToken ? window.appConfig.mapboxToken : '';
-  mapboxgl.accessToken = token;
   const socket = (typeof io === 'function') ? io() : null;
 
   // Get tracking ID from query (?id=) or URL path /track/:id
@@ -15,16 +15,16 @@
   // Fallback center
   const start = [ -0.1278, 51.5074 ];
 
-  const map = new mapboxgl.Map({
-    container: 'map',
-    style: 'https://api.mapbox.com/styles/v1/mapbox/streets-v12?access_token=' + token,
-    center: start,
-    zoom: 9
-  });
+  const style = {
+    version: 8,
+    sources: {
+      osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256 }
+    },
+    layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
+  };
 
-  let marker = new mapboxgl.Marker({ color: '#FFD700' })
-    .setLngLat(start)
-    .addTo(map);
+  const map = new maplibregl.Map({ container: 'map', style, center: start, zoom: 9 });
+  let marker = new maplibregl.Marker({ color: '#FFD700' }).setLngLat(start).addTo(map);
 
   const coordsEl = { lat: document.getElementById('lat'), lng: document.getElementById('lng'), speed: document.getElementById('speed') };
 
