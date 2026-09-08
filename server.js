@@ -26,6 +26,9 @@ const { sanitizeFileName } = require('./src/services/fileUpload/utils');
 const packageJson = require('./package.json');
 
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+let io;
 const PORT = process.env.PORT || 3000;
 const DEBUG = process.env.DEBUG === 'TRUE';
 const NODE_ENV = process.env.NODE_ENV || 'production';
@@ -460,6 +463,32 @@ app.use('/api', (req, res, next) => {
     next();
 });
 
+// --- Tracking persistence helpers ---
+const trackingFilePath = path.join(DATA_DIR, 'Tracking.json');
+function readTrackingData(){
+    try{ if(!fs.existsSync(trackingFilePath)) return {}; return JSON.parse(fs.readFileSync(trackingFilePath,'utf8')||'{}'); }catch(e){console.error('readTrackingData err',e); return {}; }
+}
+function writeTrackingData(obj){ try{ ensureDirectoryExists(path.dirname(trackingFilePath)); fs.writeFileSync(trackingFilePath, JSON.stringify(obj,null,2),'utf8'); return true;}catch(e){console.error('writeTrackingData err',e); return false; }
+}
+
+// REST endpoint to POST tracking updates (and emit via socket)
+app.post('/api/track/:id', (req,res)=>{
+    try{
+        const id = req.params.id;
+        const { lat, lng, speed } = req.body || {};
+        const now = new Date().toISOString();
+        const store = readTrackingData();
+        store[id] = { id, lat, lng, speed, updatedAt: now };
+        writeTrackingData(store);
+        // emit to sockets
+        if (io) io.to(id).emit('position', store[id]);
+        res.json({ ok:true, tracking: store[id] });
+    }catch(err){ console.error(err); res.status(500).json({ ok:false,error:err.message }); }
+});
+
+// GET current tracking
+app.get('/api/track/:id', (req,res)=>{ const store = readTrackingData(); res.json(store[req.params.id]||null); });
+
 // --- ASSET MANAGEMENT (existing code preserved) ---
 // File paths
 const assetsFilePath = path.join(DATA_DIR, 'Assets.json');
@@ -628,6 +657,20 @@ if (!fs.existsSync(assetsFilePath)) {
 if (!fs.existsSync(subAssetsFilePath)) {
     writeJsonFile(subAssetsFilePath, []);
 }
+
+// --- Socket.IO setup ---
+try{
+    const { Server } = require('socket.io');
+    io = new Server(server, { cors: { origin: '*' } });
+    io.on('connection', socket=>{
+        console.log('socket connected:', socket.id);
+        socket.on('subscribe', (room)=>{ socket.join(room); console.log('joined',room); });
+        socket.on('unsubscribe', (room)=>{ socket.leave(room); });
+        socket.on('position', (payload)=>{ // payload should contain id, lat, lng
+            if (payload && payload.id){ const store = readTrackingData(); store[payload.id] = { ...payload, updatedAt: new Date().toISOString() }; writeTrackingData(store); io.to(payload.id).emit('position', store[payload.id]); }
+        });
+    });
+}catch(e){ console.error('Socket.IO setup failed', e); }
 
 // API Routes
 // Get all assets
@@ -1543,7 +1586,7 @@ setInterval(() => {
 startWarrantyCron();
 
 // --- START SERVER ---
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     debugLog('Server Configuration:', {
         port: PORT,
         basePath: BASE_PATH,

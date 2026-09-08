@@ -1,0 +1,30 @@
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:16px;
+  padding:16px;
+}
+.app-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  background:#0b3142;
+  color:#fff;
+}
+.app-header h1{margin:0;font-size:18px}
+.header-actions .btn{background:#ffd700;color:#000;padding:6px 10px;border-radius:4px;text-decoration:none}
+.shipments-panel{background:#fff;padding:12px;border-radius:6px;height:calc(100vh - 96px);overflow:auto}
+.shipments-panel h2{margin-top:0}
+.list{list-style:none;padding:0;margin:8px 0}
+.list li{padding:8px;border-bottom:1px solid #eee;cursor:pointer}
+.list li:hover{background:#f6f8fa}
+.map-panel{position:relative}
+.map{height:60vh;border-radius:6px;border:1px solid #ddd}
+.detail{background:#fff;padding:12px;margin-top:8px;border-radius:6px}
+.controls{margin-top:10px;display:flex;gap:8px}
+.btn{background:#0b3142;color:#fff;padding:6px 10px;border-radius:4px;text-decoration:none;border:none;cursor:pointer}
+@media(max-width:800px){
+  .dashboard-grid{grid-template-columns:1fr;}
+  .map{height:50vh}
+}

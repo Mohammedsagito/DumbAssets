@@ -15,6 +15,7 @@
   ],
   "author": "DumbWare",
   "dependencies": {
+    "socket.io": "^4.7.2",
     "chart.js": "^4.4.9",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
